@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Website</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="icon" href="static/favicon.ico" type="image/x-icon">
+  </head>
+  <body onload="onload()">
+    <h1>Metrorail TWC Data Analysis Tool</h1>  
+    <h3>Filter Criteria (Leave Blank for Any):</h3>  
+    <label for="file">Data Source: </label>
+        <select name="file" id="file">
+            
+        </select>
+    <div class="filter", id="filterbox">
+        <label for="line">Line: </label>
+        <select name="line" id="line">
+            <option value="ANY">Any</option>
+            <option value="RED">Red</option>
+            <option value="BLUE">Blue</option>
+            <option value="YELLOW">Yellow</option>
+            <option value="GREEN">Green</option>
+            <option value="ORANGE">Orange</option>
+            <option value="SILVER">Silver</option>
+          </select>
+          <label for="stationID">Station ID: </label>
+          <input type="text" id="stationID" name="stationID" class="smallinput">
+          <label for="stationID">Track: </label>
+          <input type="text" id="trackID" name="trackID" class="smallinput">
+          <label for="destID">Destination: </label>
+          <input type="text" id="destID" name="destID" class="smallinput"> <br>
+          <label for="showAll">Print All Trains:</label>
+          <input type="checkbox" id="showAll" name="showAll">
+          <label for="atoOnly">ATO Only:</label>
+          <input type="checkbox" id="atoOnly" name="atoOnly">
+          <br>
+          <button type="button" onclick="getData()">Generate</button>
+
+    </div>
+    <div id="stats" class="stats" hidden = true>
+      <div><span style="color:blue; font-size:x-large;">Eight Car Train Appearances: </span><span id="8">0</span></div>
+      <div><span style="color:blue; font-size:x-large">Six Car Trains Appearances: </span><span id="6">0</span> </div>
+      <div><span style="color:blue">ATO Rate: </span><span id="ato">0</span>%</div>
+      <div><span style="color:blue">ATP Rate: </span><span id="atp">0</span>%</div>
+      <div><span style="color:blue">Berth Rate: </span><span id="berth">0</span>%</div>
+      <div><span style="color:blue">Auto Doors Rate: </span><span id="ado">0</span>%</div>
+      <a href="javascript:showDoorsClosed()"><span style="color:red">Doors opened on WRONG side: </span> <span id="wdo">0</span></a>
+    </div>
+    <div id="results">
+      <h3>Results will show up here</h3>
+      
+    </div>
+	<script src="static/index.js"></script>
+</html>
