@@ -19,7 +19,7 @@ function onload() {
 
 function getData() {
     document.getElementById("results").innerHTML = ""
-    var request = "./process?line={0}&station={1}&destination={2}&auto={3}&print={4}&track={5}&file={6}";
+    var request = "./process?line={0}&station={1}&destination={2}&auto={3}&print={4}&track={5}&file={6}&train={7}&route={8}";
     var ato=document.getElementById("atoOnly").checked;
     var printAll= document.getElementById("showAll").checked;
     var line = document.getElementById('line').value
@@ -27,6 +27,8 @@ function getData() {
     var trackID = document.getElementById('trackID').value
     var destinationID = document.getElementById('destID').value
     var file = document.getElementById('file').value
+    var trainID = document.getElementById('trainID').value
+    var route = document.getElementById('route').value
     
     var img = document.createElement("img");
     img.src = "static/loading.gif";
@@ -48,6 +50,8 @@ function getData() {
     request = request.replace("{4}", printAll.toString())
     request = request.replace("{5}", trackID)
     request = request.replace("{6}", file)
+    request = request.replace("{7}", trainID)
+    request = request.replace("{8}", route)
 
     req.open("GET", request, true);
     req.send();
@@ -65,11 +69,7 @@ function loadEnd(e) {
     trainsList = req.response.split("&")
     var dataLimit = 250
     document.getElementById('stats').hidden = false
-    if (document.getElementById("showAll").checked) {
-        document.getElementById("results").innerHTML = `<h3>Displaying ${trainsList.length} trains.</h3>`
-    } else {
-        document.getElementById("results").innerHTML = `<h3>Loaded.</h3>`
-    }
+    document.getElementById("results").innerHTML = `<h3>${trainsList.length-1} Results</h3>`
     if (trainsList.length > dataLimit && document.getElementById("showAll").checked) {
         document.getElementById("results").innerHTML += `<h2>Limiting data display to 250 for performance reasons</h2>`
     }

@@ -5,5 +5,26 @@
     <div><span style="color:darkviolet">First Appeared:</span> {ARR} <span style="color:darkviolet">Last Appeared:</span> {DEPT}</div>
     <div name="doors"><span style="color:firebrick">Doors opened:</span> {DO} {DA} <span style="color:firebrick">on the</span> {DS} <span style="color:firebrick">and closed at:</span> {DC}</div>
     <a name="toggleRaw" onclick="rawButtonClicked(this)" style="color:blue; text-decoration: underline; cursor:grab;">Toggle Raw Data Display</a>
-    <div name="rawdata" hidden = true>{RD}</div>
+    <div name="rawdata" hidden = true>
+        <table>
+        <tr>
+          <th>Date</th>
+          <th>Platform</th>  
+          <th>Pre Occ</th>
+          <th>Pltf Occ</th>
+          <th>Post Occ</th>
+          <th>ID</th>
+          <th>Dest</th>
+          <th>Len</th>
+          <th>PSS</th>
+          <th>Auto</th>
+          <th>ATP</th>
+          <th>Doors</th>
+          <th>Ready</th>
+          <th>Berth</th>
+          <th>Motion</th>
+          <th>Doors Man</th>
+        </tr>
+        {RD}
+      </table></div>
 </div>

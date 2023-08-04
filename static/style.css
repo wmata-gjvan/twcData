@@ -69,4 +69,18 @@ body {
     font-size: large;
     margin-top: 10px;
   }
+  table {
+    border-style: ridge;
+    stroke: black; 
+    stroke-width: 2px;
+}
+
+table th {
+    border: 1px solid #000;
+}
+
+table td {
+  border: 1px solid #000;
+}
+
 

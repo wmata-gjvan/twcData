@@ -58,7 +58,7 @@ def load():
     track = request.args.get('track')
     file = str(request.args.get('file'))
     data = ""
-    data = processData(file, printT, station, line, auto, int(destination))
+    data = processData(file, printT, station, line, auto, int(destination), track, "-1", request.args.get('route'))
     if data==None:
         data = "No trains match selected criteria!"
     return data
@@ -483,7 +483,7 @@ def convertTime(time):
 
 
 #Processing the data from the tool
-def processData(file, printData=False, code="*", line="*",autoOnly=False, destID=-1, track=0, startTime=0, endTime=0):   
+def processData(file, printData=False, code="*", line="*",autoOnly=False, destID=-1, track="0", trainID="-1", route="Any"):   
     reader = csv.reader(open("twcData/" + file))
     trainsList = []
     i=0
@@ -491,12 +491,15 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
     #Apply the filter as we are opening the file. Saves memory and cuts complexity of the program :)
     for row in reader:
         try:
+            if not route=="Any":
+                if row[1][0] != route:
+                    continue
             if not row[5].isdigit():
                 continue
             if code != "*" and code != row[1].split("-")[0]:
                 continue
             #Checks if track matches the filter applied
-            if row[1].split("-")[1] != track and track != 0:
+            if row[1].split("-")[1] != track and track != "0":       
                 continue
             dest = destination(int(row[6]))
             if line != "*":      
@@ -506,13 +509,10 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
                 continue
             if autoOnly == True:
                 if row[9] != "1":
-                    continue
-            if startTime != 0:
-                if convertTime(row[0]) < startTime:
-                    continue
-            if endTime != 0:
-                if convertTime(row[0]) > endTime:
-                    continue
+                    continue 
+            if trainID != "-1" and row[5] != trainID:
+                print(trainID + "Isnot" + row[5])
+                continue          
             #If the code execution gets to here, then the train passed all of the filters      
             rows.append(row)
         except:
@@ -590,7 +590,7 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
                 trainsList[j].wrongSide = True
                 print("yes")
             #Finally, add this row as part of the raw bits of the train object:
-            trainsList[j].rawBits += str(row).replace(',', "").replace("'", "") + "<br>"
+            trainsList[j].rawBits += str(row).replace(',', "</td><td>").replace("'", "").replace("[", "<tr><td>").replace("]", "</td></tr>")
         else:
             continue
     pss = 0
