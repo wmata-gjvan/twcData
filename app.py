@@ -58,7 +58,7 @@ def load():
     track = request.args.get('track')
     file = str(request.args.get('file'))
     data = ""
-    data = processData(file, printT, station, line, auto, int(destination), track, "-1", request.args.get('route'))
+    data = processData(file, printT, station, line, auto, int(destination), track, request.args.get('train'), request.args.get('route'))
     if data==None:
         data = "No trains match selected criteria!"
     return data
@@ -510,9 +510,6 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
             if autoOnly == True:
                 if row[9] != "1":
                     continue 
-            if trainID != "-1" and row[5] != trainID:
-                print(trainID + "Isnot" + row[5])
-                continue          
             #If the code execution gets to here, then the train passed all of the filters      
             rows.append(row)
         except:
@@ -530,7 +527,7 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
                 trainsList[j].location = currentLocation(row[1]) 
             if int(row[5]) != trainsList[j].id:
                 #This removes the one line trains that usually are the result of an issue with the equipment at a particular location
-                if trainsList[j].length == 0 or trainsList[j].arrivalTime == trainsList[j].departureTime:
+                if trainsList[j].length == 0 or trainsList[j].arrivalTime == trainsList[j].departureTime or (trainsList[j].id != int(trainID) and trainID != "-1"):
                     trainsList.pop()
                     j-=1
                 #The next train has begun because the ID has changed.
@@ -588,7 +585,6 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
 
             if trainsList[j].doorsOpenSide != trainsList[j].location.normalDoorsOpen and trainsList[j].destination.code != trainsList[j].location.code and trainsList[j].location.terminal == False and trainsList[j].doorsOpenSide != "NOT":
                 trainsList[j].wrongSide = True
-                print("yes")
             #Finally, add this row as part of the raw bits of the train object:
             trainsList[j].rawBits += str(row).replace(',', "</td><td>").replace("'", "").replace("[", "<tr><td>").replace("]", "</td></tr>")
         else:
@@ -607,7 +603,6 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
     trainsList = sorted(trainsList, key=lambda x: x.arrivalTime)
     for train in trainsList:
         #Calculating success rates
-
         if True:
             if len(returnstr) > 0:
                 returnstr += "&" + train.serialize()
