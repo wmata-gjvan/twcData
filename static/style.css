@@ -83,4 +83,12 @@ table td {
   border: 1px solid #000;
 }
 
+button.link { 
+  background:none; 
+  border:none; }
+
+button.link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  }
 

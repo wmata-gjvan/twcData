@@ -1,5 +1,6 @@
 var mainTemplate;
-var trainsList;
+var trainsList = [];
+var idSortMode = false;
 const req = new XMLHttpRequest();
 function onload() {
     req.open("GET", "/filelist", false);
@@ -16,8 +17,15 @@ function onload() {
     req.send();
     mainTemplate = req.response
 }
-
+function showLoadingState() {
+    document.getElementById("results").innerHTML = ""
+    var img = document.createElement("img");
+    img.src = "static/loading.gif";
+    document.getElementById("results").appendChild(img)
+}
 function getData() {
+    idSortMode = false
+    trainsList = []
     document.getElementById("results").innerHTML = ""
     var request = "./process?line={0}&station={1}&destination={2}&auto={3}&print={4}&track={5}&file={6}&train={7}&route={8}";
     var ato=document.getElementById("atoOnly").checked;
@@ -30,9 +38,7 @@ function getData() {
     var trainID = document.getElementById('trainID').value
     var route = document.getElementById('route').value
     
-    var img = document.createElement("img");
-    img.src = "static/loading.gif";
-    document.getElementById("results").appendChild(img)
+    showLoadingState()
 
     if (isNaN(trackID) || trackID == "") {
         trackID = 0
@@ -66,14 +72,17 @@ function loadEnd(e) {
         document.getElementById('stats').hidden = true
         return
     }
-    trainsList = req.response.split("&")
+    response = req.response.split("&")
     var dataLimit = 250
     document.getElementById('stats').hidden = false
-    document.getElementById("results").innerHTML = `<h3>${trainsList.length-1} Results</h3>`
-    if (trainsList.length > dataLimit && document.getElementById("showAll").checked) {
+    document.getElementById("results").innerHTML = `<h3>${response.length-1} Results</h3>`
+    if (response.length > dataLimit && document.getElementById("showAll").checked) {
         document.getElementById("results").innerHTML += `<h2>Limiting data display to 250 for performance reasons</h2>`
     }
-    var stats = JSON.parse(trainsList[trainsList.length-1])
+    for (line in response) {
+        trainsList.push(JSON.parse(response[line]))
+    }
+    var stats = JSON.parse(response[response.length-1])
     document.getElementById("8").innerHTML = stats.eight
     document.getElementById("6").innerHTML =  stats.six
     document.getElementById("ato").innerHTML =  stats.ato
@@ -91,12 +100,7 @@ function loadEnd(e) {
 }
 }
 
-function updateUI(jsonObj) {
-        try {
-            var self = JSON.parse(jsonObj)
-        } catch {
-            return
-        }
+function updateUI(self) {
         template = mainTemplate.replace("{Color}", self.destination.line).replace("{ID}", self.id).replace("{DEST}", self.destination.id + "/" + self.destination.friendlyName).replace("{LOCATION}", self.location.code + "-" + self.location.track + "/" + self.location.friendlyName)
         template =template.replace("{LEN}", self.length)
         template =template.replace("{ATO}", self.ato)
@@ -129,7 +133,7 @@ function updateUI(jsonObj) {
 function showDoorsClosed(jsonObj) {
     document.getElementById("results").innerHTML = "<h2>Trains with doors open on wrong side:</h2>"
     for (i in trainsList) {
-        if (JSON.parse(trainsList[i]).wrongSide == true) {
+        if (trainsList[i].wrongSide == true) {
             setTimeout(updateUI(trainsList[i]), 0)
         }
     }
@@ -137,4 +141,18 @@ function showDoorsClosed(jsonObj) {
 
 function rawButtonClicked(element) {
     element.parentElement.querySelector('[name="rawdata"]').hidden = !element.parentElement.querySelector('[name="rawdata"]').hidden
+}
+function showAllFromID(element) {
+    id = element.innerHTML
+    if (idSortMode) {
+        return
+    }
+    setTimeout(showLoadingState(), 0)
+    document.getElementById("results").innerHTML = `<h2>Train ID: ${id}</h2>`
+    for (i in trainsList) {
+        if (trainsList[i].id == id) {
+            setTimeout(updateUI(trainsList[i]), 0)
+        }
+    }
+    idSortMode = true
 }

@@ -19,7 +19,8 @@ terminalStations = ["A15", "B11", "E10", "D13", "G05", "F11", "C15", "J03", "K08
 files = os.listdir("twcData")
 paths = [os.path.join("twcData", basename) for basename in files]
 latestFile = max(paths, key=os.path.getctime)
-#Use case: glenmont = destination(13)
+
+#Web compontents
 from flask import Flask, Response
 from flask import request
 app = Flask(__name__, static_url_path='/static')
@@ -35,6 +36,7 @@ def returnTemplate():
 @app.route("/filelist")
 def returnList():
     return json.dumps(os.listdir("twcData"))
+#This web route handles the front-end requests for data, based on the criteria applied by the user
 @app.route("/process",methods = ['POST', 'GET'])
 def load():
     line = request.args.get('line')
@@ -417,26 +419,7 @@ class TrainInStation:
             returnstr += Fore.MAGENTA + "Doors opened: " + Fore.RESET + str(self.doorsOpenTime) + doorsStr  + Fore.MAGENTA + " and closed at: " + Fore.RESET + str(self.doorsCloseTime)
             print(returnstr)
             return returnstr
-    def html(self):
-        template = htmlTemplate
-        #Replacing the placeholder values with our real values.
-        template = template.replace("/COLOR/", self.destination.line.lower())
-        template =template.replace("{ID}", str(self.id))
-        template =template.replace("{DEST}", str(self.destination.id) + "/" + self.destination.friendlyName)
-        template =template.replace("{LOCATION}", self.location.code + "-" + self.location.track + "/" + self.location.friendlyName)
-        template =template.replace("{LEN}", str(self.length))
-        template =template.replace("{ATO}", str(self.ato))
-        template =template.replace("{BERTH}", str(self.trainBerth))
-        template =template.replace("{ATP}", str(self.atp))
-        template =template.replace("{PSS}", str(self.pss))
-        template =template.replace("{ARR}", str(self.arrivalTime))
-        template =template.replace("{DEPT}", str(self.departureTime))
-        template =template.replace("{DO}", str(self.doorsOpenTime))
-        template =template.replace("{DA}", str(self.doorsOpenAuto))
-        template =template.replace("{DS}", str(self.doorsOpenSide))
-        template =template.replace("{DC}", str(self.doorsCloseTime))
-        
-        return template
+    #This function is responsible for packaging the data into json to communicate with the frontend 
     def serialize(self):
         selfCopy = copy.deepcopy(self)
         selfCopy.arrivalTime = selfCopy.arrivalTime.isoformat(" ")
@@ -482,12 +465,14 @@ def convertTime(time):
 
 
 
-#Processing the data from the tool
+#Processing the data from the tool 
 def processData(file, printData=False, code="*", line="*",autoOnly=False, destID=-1, track="0", trainID="-1", route="Any"):   
     reader = csv.reader(open("twcData/" + file))
     trainsList = []
     i=0
     rows = []
+    if trainID == "":
+        trainID = "-1"
     #Apply the filter as we are opening the file. Saves memory and cuts complexity of the program :)
     for row in reader:
         try:
@@ -513,7 +498,7 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
             #If the code execution gets to here, then the train passed all of the filters      
             rows.append(row)
         except:
-            print("Issue with row. Incomplete data")
+            True
     if len(rows) == 0:
         print(Fore.RED + "ERROR: No Trains Match Selected Criteria!" + Fore.RESET)
         return
@@ -527,9 +512,15 @@ def processData(file, printData=False, code="*", line="*",autoOnly=False, destID
                 trainsList[j].location = currentLocation(row[1]) 
             if int(row[5]) != trainsList[j].id:
                 #This removes the one line trains that usually are the result of an issue with the equipment at a particular location
-                if trainsList[j].length == 0 or trainsList[j].arrivalTime == trainsList[j].departureTime or (trainsList[j].id != int(trainID) and trainID != "-1"):
-                    trainsList.pop()
-                    j-=1
+                try:
+                    if trainsList[j].length == 0 or trainsList[j].arrivalTime == trainsList[j].departureTime or (trainsList[j].id != int(trainID) and trainID != "-1"):
+                        trainsList.pop()
+                        j-=1
+                except:
+                    print("There was an error")
+                    print(trainID)
+                    while True:
+                        la = True
                 #The next train has begun because the ID has changed.
                 trainsList.append(TrainInStation(int(row[5])))
                 j+=1
